@@ -1,7 +1,7 @@
-import './App.css'
+import RutasApp from "./rutas/RutasApp";
 
 function App() {
-  return <h1>Villa Yaiza System</h1>;
+  return <RutasApp />;
 }
 
 export default App;
