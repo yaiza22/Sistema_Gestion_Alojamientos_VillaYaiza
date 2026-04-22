@@ -8,8 +8,20 @@ class ItemInventario(models.Model):
         ('en_reparacion', 'En reparación'),
     ]
 
+    CATEGORIAS = [
+        ('mobiliario', 'Mobiliario'),
+        ('electrodomestico', 'Electrodoméstico'),
+        ('ropa_cama', 'Ropa de cama'),
+        ('utensilio_cocina', 'Utensilio de cocina'),
+        ('decoracion', 'Decoración'),
+        ('herramienta', 'Herramienta'),
+        ('juegos', 'Juegos'),
+        ('otro', 'Otro'),
+    ]
+
     propiedad = models.ForeignKey(Propiedad, on_delete=models.CASCADE, related_name='items')
     nombre = models.CharField(max_length=150)
+    categoria = models.CharField(max_length=30, choices=CATEGORIAS, default='otro')
     descripcion = models.TextField(blank=True)
     cantidad = models.PositiveIntegerField(default=1)
     cantidad_disponible = models.PositiveIntegerField(default=1)
@@ -24,6 +36,7 @@ class ItemInventario(models.Model):
     class Meta:
         verbose_name = "Ítem de Inventario"
         verbose_name_plural = "Ítems de Inventario"
+        ordering = ['categoria', 'nombre']
 
     def __str__(self):
-        return f"{self.nombre} - {self.propiedad.nombre} ({self.get_estado_display()})"
+        return f"{self.nombre} - {self.propiedad.nombre} {self.get_categoria_display()} ({self.get_estado_display()})"

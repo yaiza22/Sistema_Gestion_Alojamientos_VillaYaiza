@@ -66,6 +66,7 @@ class Pago(models.Model):
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     fecha_pago = models.DateTimeField(default=timezone.now)
     metodo = models.CharField(max_length=50, choices=METODOS)
+    banco = models.CharField(max_length=100, blank=True, null=True)
     notas = models.TextField(blank=True, null=True)
 
     class Meta:
