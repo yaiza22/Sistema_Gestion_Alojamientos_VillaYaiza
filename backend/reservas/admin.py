@@ -44,10 +44,9 @@ class ReservaAdmin(admin.ModelAdmin):
 
 @admin.register(Pago)
 class PagoAdmin(admin.ModelAdmin):
-    list_display = ['reserva', 'monto', 'metodo', 'fecha_pago', 'notas']
-    list_filter = ['metodo']
+    list_display = ['reserva', 'monto', 'metodo', 'banco', 'fecha_pago', 'notas']
+    list_filter = ['metodo', 'banco']
     search_fields = ['reserva__cliente__nombre']
-    readonly_fields = ['fecha_pago']
 
 @admin.register(RevisionInventario)
 class RevisionInventarioAdmin(admin.ModelAdmin):

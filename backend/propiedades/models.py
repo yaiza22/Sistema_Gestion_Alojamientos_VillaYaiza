@@ -11,8 +11,10 @@ class Propiedad(models.Model):
     tipo = models.CharField(max_length=20, choices=TIPOS)
     descripcion = models.TextField(blank=True)
     capacidad = models.PositiveIntegerField()
-    precio_base_por_dia = models.DecimalField(max_digits=10, decimal_places=2)
     ubicacion = models.CharField(max_length=200, blank=True, null=True)
+    precio_base_por_dia = models.DecimalField(max_digits=10, decimal_places=2)
+    precio_temporada_baja = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    precio_temporada_alta = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     esta_activa = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
