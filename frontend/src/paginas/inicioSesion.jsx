@@ -105,14 +105,14 @@ function InicioSesion() {
             {/* Campo Usuario */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Correo electrónico
+                Usuario
               </label>
               <div className="relative">
                 {/* Ícono de sobre (lucide-react) */}
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
                   type="text"
-                  placeholder="tu@email.com"
+                  placeholder="tu usuario"
                   value={usuario}
                   onChange={(e) => setUsuario(e.target.value)}
                   required
