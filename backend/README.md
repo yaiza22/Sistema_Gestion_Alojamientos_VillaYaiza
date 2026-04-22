@@ -2,11 +2,7 @@
 
 > API REST en construcción desarrollada con **Django 5** para el sistema de gestión interno de Alojamientos Villa Yaiza. Actualmente expone administración completa vía Django Admin y los primeros endpoints REST de autenticación y perfil de usuario.
 
-![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
-![Django](https://img.shields.io/badge/Django-5.2-092E20?logo=django&logoColor=white)
-![DRF](https://img.shields.io/badge/DRF-3.17-red)
-![WeasyPrint](https://img.shields.io/badge/WeasyPrint-68.1-blue)
-![Estado](https://img.shields.io/badge/API%20REST-en%20desarrollo-yellow)
+
 
 >  Este README documenta únicamente el backend. Para el contexto general del proyecto, consulta el [README principal](../README.md).
 
