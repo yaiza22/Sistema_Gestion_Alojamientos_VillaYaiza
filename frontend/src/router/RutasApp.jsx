@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import InicioSesion from "../paginas/inicioSesion";
-import Panel from "../paginas/panel";
-import RutaProtegida from "../proteccion/RutaProtegida";
+import InicioSesion from "../pages/inicioSesion";
+import Panel from "../pages/panel";
+import RutaProtegida from "../components/RutaProtegida";
 
 function RutasApp() {
   return (
@@ -10,7 +10,7 @@ function RutasApp() {
         <Route path="/" element={<InicioSesion />} />
 
         <Route
-          path="/panel"
+          path="/dashboard"
           element={
             <RutaProtegida>
               <Panel />

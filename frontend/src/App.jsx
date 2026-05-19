@@ -1,4 +1,4 @@
-import RutasApp from "./rutas/RutasApp";
+import RutasApp from "./router/RutasApp";
 
 function App() {
   return <RutasApp />;
