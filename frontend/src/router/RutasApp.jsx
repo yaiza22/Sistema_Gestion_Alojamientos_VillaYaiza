@@ -3,6 +3,10 @@ import InicioSesion from "../pages/inicioSesion";
 import Panel from "../pages/panel";
 import RutaProtegida from "../components/RutaProtegida";
 
+import ListaUsuarios from "../pages/usuarios/ListaUsuarios";
+import FormularioUsuarios from "../pages/usuarios/FormularioUsuarios";
+import CambiarPassword from "../pages/usuarios/CambiarPassword";
+
 function RutasApp() {
   return (
     <BrowserRouter>
@@ -17,6 +21,43 @@ function RutasApp() {
             </RutaProtegida>
           }
         />
+
+        <Route 
+          path="/usuarios" 
+          element={
+            <RutaProtegida>
+              <ListaUsuarios />
+            </RutaProtegida>
+          } 
+        />
+
+        <Route 
+          path="/usuarios/nuevo" 
+          element={
+            <RutaProtegida>
+              <FormularioUsuarios />
+            </RutaProtegida>
+          } 
+        />
+
+        <Route 
+          path="/usuarios/:id/editar" 
+          element={
+            <RutaProtegida>
+              <FormularioUsuarios />
+            </RutaProtegida>
+          } 
+        />
+
+        <Route
+          path="/usuarios/:id/password"
+          element={
+            <RutaProtegida>
+              <CambiarPassword />
+            </RutaProtegida>
+          }
+        />
+
       </Routes>
     </BrowserRouter>
   );

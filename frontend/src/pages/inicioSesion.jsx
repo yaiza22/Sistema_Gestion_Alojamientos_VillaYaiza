@@ -5,8 +5,10 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import api from "../services/api";
+import { useAuth } from "../hooks/useAuth";
 
 function InicioSesion() {
+  const { login } = useAuth();
   const [mostrarPassword, setMostrarPassword] = useState(false);
   const [usuario, setUsuario] = useState("");
   const [password, setPassword] = useState("");
@@ -51,9 +53,12 @@ function InicioSesion() {
 
       // Recordarme — si está activo guarda en localStorage (persiste)
       // Si no está activo guarda en sessionStorage (se borra al cerrar)
+      /*
       const storage = recordarme ? localStorage : sessionStorage;
       storage.setItem("accessToken", res.data.access);
       storage.setItem("refreshToken", res.data.refresh);
+      */
+      login(res.data.access, res.data.refresh, recordarme);
 
       navegar("/dashboard");
     } catch (err) {
