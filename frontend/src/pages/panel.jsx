@@ -1,317 +1,438 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  LayoutDashboard, // ícono del menú Dashboard
-  Calendar,        // ícono Calendario
-  BookOpen,        // ícono Reservas
-  Users,           // ícono Clientes
-  Package,         // ícono Inventario
-  FileText,        // ícono Reportes
-  LogOut,          // ícono Cerrar sesión
-  DollarSign,      // ícono Ingresos
-  AlertTriangle,   // ícono Items dañados
-  TrendingUp,      // ícono tendencia en la gráfica
-} from "lucide-react";
+import { Calendar, BookOpen, Users, Package, DollarSign, AlertTriangle, TrendingUp, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { useAuth } from "../hooks/useAuth";
+import { tienePermiso } from "../utils/permisos";
+import reservaService from "../services/reservaService";
+import PropTypes from "prop-types";
 
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-
-// ── Datos de la gráfica ──────────────────────────────────────────
-// En producción estos vendrían del backend con useEffect + api.get()
-const datosOcupacion = [
-  { dia: "Lun", ocupacion: 65 },
-  { dia: "Mar", ocupacion: 78 },
-  { dia: "Mié", ocupacion: 80 },
-  { dia: "Jue", ocupacion: 74 },
-  { dia: "Vie", ocupacion: 82 },
-  { dia: "Sáb", ocupacion: 91 },
-  { dia: "Dom", ocupacion: 88 },
+// ── Helpers ──────────────────────────────────────────────────────
+const MESES = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
 ];
 
-// ── Datos de actividad reciente ──────────────────────────────────
-const actividadReciente = [
-  { id: 1, titulo: "Nueva reserva confirmada", nombre: "Juan Pérez",     tiempo: "Hace 5 min" },
-  { id: 2, titulo: "Pago recibido",            nombre: "María González", tiempo: "Hace 15 min" },
-  { id: 3, titulo: "Reserva cancelada",        nombre: "Carlos Ruiz",    tiempo: "Hace 1 hora" },
-  { id: 4, titulo: "Nuevo cliente registrado", nombre: "Ana López",      tiempo: "Hace 2 horas" },
-];
+const DIAS_SEMANA = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
-// ── Ítems del menú lateral ───────────────────────────────────────
-// Cada objeto tiene: nombre (texto) e icono (componente de lucide-react)
-const elementosMenu = [
-  { nombre: "Dashboard",  icono: LayoutDashboard },
-  { nombre: "Calendario", icono: Calendar },
-  { nombre: "Reservas",   icono: BookOpen },
-  { nombre: "Clientes",   icono: Users },
-  { nombre: "Inventario", icono: Package },
-  { nombre: "Reportes",   icono: FileText },
-];
+const COLORES_ESTADO = {
+  pendiente: { bg: "bg-yellow-400", texto: "text-yellow-800" },
+  en_curso: { bg: "bg-blue-400", texto: "text-blue-800" },
+  completada: { bg: "bg-green-400", texto: "text-green-800" },
+  cancelada: { bg: "bg-red-400", texto: "text-red-800" },
+};
 
-// ================================================================
-// COMPONENTE PRINCIPAL
-// ================================================================
-function Panel() {
-  const [paginaActiva, setPaginaActiva] = useState("Dashboard");
-  const navegar = useNavigate();
-
-  // Borra los tokens y lleva al usuario al inicio de sesión
-  const cerrarSesion = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    navegar("/");
-  };
-
-  return (
-    <div className="flex h-screen bg-gray-50">
-
-      {/* ── SIDEBAR ────────────────────────────────────────────── */}
-      <aside className="w-56 bg-white border-r border-gray-100 flex flex-col flex-shrink-0">
-
-        {/* Logo */}
-        <div className="flex items-center gap-3 px-5 py-6">
-          <div
-            className="w-9 h-9 rounded-lg flex items-center justify-center"
-            style={{ background: "linear-gradient(135deg, #7B5EA7, #C850C0)" }}
-          >
-            <LayoutDashboard className="w-4 h-4 text-white" />
-          </div>
-          <span className="font-bold text-gray-800">Dashboard</span>
-        </div>
-
-        {/* Menú de navegación — flex-1 empuja el botón de cerrar sesión al fondo */}
-        <nav className="flex-1 px-3 space-y-1">
-          {elementosMenu.map((item) => {
-            // Guardamos el componente del ícono en una variable con mayúscula
-            // (React requiere que los componentes empiecen con mayúscula)
-            const Icono = item.icono;
-            const estaActivo = paginaActiva === item.nombre;
-
-            return (
-              <button
-                key={item.nombre}
-                onClick={() => setPaginaActiva(item.nombre)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl
-                            text-sm font-medium transition-colors duration-150
-                            ${estaActivo
-                              ? "bg-purple-50 text-purple-700"
-                              : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-                            }`}
-              >
-                <Icono
-                  className={`w-4 h-4 ${estaActivo ? "text-purple-600" : "text-gray-400"}`}
-                />
-                {item.nombre}
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Botón cerrar sesión */}
-        <div className="px-3 pb-6">
-          <button
-            onClick={cerrarSesion}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl
-                       text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            Cerrar sesión
-          </button>
-        </div>
-      </aside>
-
-      {/* ── CONTENIDO PRINCIPAL ────────────────────────────────── */}
-      {/* overflow-y-auto permite hacer scroll si el contenido es más largo que la pantalla */}
-      <main className="flex-1 overflow-y-auto px-8 py-8">
-
-        {/* Animación de entrada del contenido */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-
-          {/* Encabezado */}
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-500 mt-1">
-              Bienvenido de vuelta, aquí está tu resumen de hoy
-            </p>
-          </div>
-
-          {/* ── TARJETAS DE ESTADÍSTICAS ─────────────────────── */}
-          <div className="grid grid-cols-3 gap-5 mb-6">
-
-            <TarjetaEstadistica
-              icono={Calendar}
-              colorFondo="bg-blue-50"
-              colorIcono="text-blue-500"
-              etiqueta="Reservas hoy"
-              valor="12"
-              cambio="+4.75%"
-              positivo={true}
-            />
-
-            <TarjetaEstadistica
-              icono={DollarSign}
-              colorFondo="bg-green-50"
-              colorIcono="text-green-500"
-              etiqueta="Ingresos del mes"
-              valor="$24,500"
-              cambio="+12.5%"
-              positivo={true}
-            />
-
-            <TarjetaEstadistica
-              icono={AlertTriangle}
-              colorFondo="bg-red-50"
-              colorIcono="text-red-500"
-              etiqueta="Items dañados"
-              valor="3"
-              cambio="-2"
-              positivo={false}
-            />
-          </div>
-
-          {/* ── GRÁFICA + ACTIVIDAD RECIENTE ─────────────────── */}
-          <div className="grid grid-cols-8 gap-5 mb-6">
-
-            {/* Gráfica — ocupa 5 de 8 columnas */}
-            <div className="col-span-5 bg-white rounded-2xl p-6 border border-gray-100">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold text-gray-800">Ocupación Semanal</h2>
-                <TrendingUp className="w-5 h-5 text-green-500" />
-              </div>
-
-              {/* ResponsiveContainer ajusta la gráfica al ancho del contenedor */}
-              <ResponsiveContainer width="100%" height={220}>
-                <AreaChart data={datosOcupacion}>
-                  <defs>
-                    {/* Degradado para el área rellena */}
-                    <linearGradient id="degradadoOcupacion" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="#7B5EA7" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#7B5EA7" stopOpacity={0.05} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis
-                    dataKey="dia"
-                    tick={{ fontSize: 12, fill: "#9ca3af" }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    domain={[0, 100]}
-                    tick={{ fontSize: 12, fill: "#9ca3af" }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <Tooltip
-                    formatter={(valor) => [`${valor}%`, "Ocupación"]}
-                    contentStyle={{ borderRadius: "8px", border: "1px solid #e5e7eb" }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="ocupacion"
-                    stroke="#7B5EA7"
-                    strokeWidth={2}
-                    fill="url(#degradadoOcupacion)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* Actividad reciente — ocupa 3 de 8 columnas */}
-            <div className="col-span-3 bg-white rounded-2xl p-6 border border-gray-100">
-              <h2 className="font-semibold text-gray-800 mb-4">Actividad Reciente</h2>
-              <div className="space-y-4">
-                {/* .map() genera un elemento por cada actividad en el array */}
-                {actividadReciente.map((actividad) => (
-                  <div key={actividad.id} className="flex items-start gap-3">
-                    {/* Avatar */}
-                    <div className="w-9 h-9 rounded-full bg-purple-50 flex items-center
-                                    justify-center flex-shrink-0">
-                      <Users className="w-4 h-4 text-purple-400" />
-                    </div>
-                    {/* Texto */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-800 truncate">
-                        {actividad.titulo}
-                      </p>
-                      <p className="text-xs text-gray-500">{actividad.nombre}</p>
-                    </div>
-                    {/* Tiempo */}
-                    <span className="text-xs text-gray-400 flex-shrink-0">
-                      {actividad.tiempo}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* ── ACCIONES RÁPIDAS ─────────────────────────────── */}
-          <div className="bg-white rounded-2xl p-6 border border-gray-100">
-            <h2 className="font-semibold text-gray-800 mb-4">Acciones Rápidas</h2>
-            <div className="grid grid-cols-4 gap-4">
-              <AccionRapida icono={Calendar}     etiqueta="Nueva Reserva" />
-              <AccionRapida icono={Users}        etiqueta="Nuevo Cliente" />
-              <AccionRapida icono={Package}      etiqueta="Inventario" />
-              <AccionRapida icono={DollarSign}   etiqueta="Registrar Pago" />
-            </div>
-          </div>
-
-        </motion.div>
-      </main>
-    </div>
-  );
+function diasEnMes(anio, mes) {
+  return new Date(anio, mes + 1, 0).getDate();
 }
 
-// ================================================================
-// COMPONENTES REUTILIZABLES
-// ================================================================
+function primerDiaMes(anio, mes) {
+  return new Date(anio, mes, 1).getDay();
+}
 
-// ── Tarjeta de estadística ────────────────────────────────────────
-// Props: icono, colorFondo, colorIcono, etiqueta, valor, cambio, positivo
-function TarjetaEstadistica({ icono: Icono, colorFondo, colorIcono, etiqueta, valor, cambio, positivo }) {
+// ── Componentes reutilizables ────────────────────────────────────
+function TarjetaStat({ icono: Icono, colorFondo, colorIcono, etiqueta, valor, subcampo }) {
   return (
     <div className="bg-white rounded-2xl p-5 border border-gray-100">
       <div className="flex items-start justify-between mb-3">
-        {/* Ícono con fondo */}
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colorFondo}`}>
+        <div className={`w-10 h-10 rounded-xl flex items-center
+                                 justify-center ${colorFondo}`}>
           <Icono className={`w-5 h-5 ${colorIcono}`} />
         </div>
-        {/* Indicador de cambio */}
-        <span className={`text-sm font-medium ${positivo ? "text-green-500" : "text-red-500"}`}>
-          {cambio}
-        </span>
       </div>
       <p className="text-sm text-gray-500">{etiqueta}</p>
       <p className="text-2xl font-bold text-gray-900 mt-1">{valor}</p>
+      {subcampo && (
+        <p className="text-xs text-gray-400 mt-1">{subcampo}</p>
+      )}
     </div>
   );
 }
 
-// ── Botón de acción rápida ────────────────────────────────────────
-// Props: icono, etiqueta
-function AccionRapida({ icono: Icono, etiqueta }) {
+TarjetaStat.propTypes = {
+  icono: PropTypes.elementType.isRequired,
+  colorFondo: PropTypes.string.isRequired,
+  colorIcono: PropTypes.string.isRequired,
+  etiqueta: PropTypes.string.isRequired,
+  valor: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  subcampo: PropTypes.string,
+};
+
+function Calendario({ reservas, anio, mes, onCambiarMes }) {
+  const totalDias = diasEnMes(anio, mes);
+  const primerDia = primerDiaMes(anio, mes);
+  const hoy = new Date();
+  const esHoy = (dia) =>
+    hoy.getFullYear() === anio &&
+    hoy.getMonth() === mes &&
+    hoy.getDate() === dia;
+
+  // Mapea fecha → reservas de ese día
+  const reservasPorDia = {};
+  reservas.forEach(r => {
+    const inicio = new Date(r.fecha_inicio + "T00:00:00");
+    const fin = new Date(r.fecha_fin + "T00:00:00");
+    for (let d = new Date(inicio); d <= fin; d.setDate(d.getDate() + 1)) {
+      const key = d.getDate();
+      if (d.getFullYear() === anio && d.getMonth() === mes) {
+        if (!reservasPorDia[key]) reservasPorDia[key] = [];
+        reservasPorDia[key].push(r);
+      }
+    }
+  });
+
+  const celdas = [];
+  for (let i = 0; i < primerDia; i++) celdas.push(null);
+  for (let d = 1; d <= totalDias; d++) celdas.push(d);
+
   return (
-    <button
-      className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl
-                 border border-gray-100 hover:bg-purple-50 hover:border-purple-100
-                 transition-colors duration-150 text-gray-600 hover:text-purple-600"
-    >
-      <Icono className="w-5 h-5 text-purple-500" />
-      <span className="text-sm font-medium">{etiqueta}</span>
-    </button>
+    <div className="bg-white rounded-2xl border border-gray-100 p-5">
+      {/* Cabecera */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="font-semibold text-gray-800">
+          {MESES[mes]} {anio}
+        </h2>
+        <div className="flex items-center gap-1">
+          <button onClick={() => onCambiarMes(-1)}
+            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+            <ChevronLeft className="w-4 h-4 text-gray-500" />
+          </button>
+          <button onClick={() => onCambiarMes(1)}
+            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+            <ChevronRight className="w-4 h-4 text-gray-500" />
+          </button>
+        </div>
+      </div>
+
+      {/* Días de la semana */}
+      <div className="grid grid-cols-7 mb-2">
+        {DIAS_SEMANA.map(d => (
+          <div key={d} className="text-center text-xs font-medium
+                                            text-gray-400 py-1">
+            {d}
+          </div>
+        ))}
+      </div>
+
+      {/* Celdas */}
+      <div className="grid grid-cols-7 gap-1">
+        {celdas.map((dia, i) => {
+          if (!dia) return <div key={`v-${i}`} />;
+          const rsv = reservasPorDia[dia] || [];
+          const hoyFlag = esHoy(dia);
+
+          return (
+            <div key={dia}
+              className={`min-h-[52px] rounded-xl p-1 transition-colors
+                                ${hoyFlag
+                  ? "bg-[#F5A623]/15 ring-1 ring-[#F5A623]"
+                  : rsv.length > 0
+                    ? "bg-gray-50"
+                    : "hover:bg-gray-50"}`}>
+              <p className={`text-xs font-medium mb-1 text-center
+                                ${hoyFlag ? "text-[#D4890A]" : "text-gray-600"}`}>
+                {dia}
+              </p>
+              <div className="space-y-0.5">
+                {rsv.slice(0, 2).map(r => {
+                  const color = COLORES_ESTADO[r.estado] ||
+                    { bg: "bg-gray-400" };
+                  return (
+                    <div key={r.id}
+                      className={`${color.bg} rounded px-1
+                                                        truncate text-white
+                                                        text-[10px] leading-4`}
+                      title={r.cliente_detalle?.nombre}>
+                      {r.cliente_detalle?.nombre?.split(" ")[0]}
+                    </div>
+                  );
+                })}
+                {rsv.length > 2 && (
+                  <p className="text-[10px] text-gray-400 text-center">
+                    +{rsv.length - 2}
+                  </p>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Leyenda */}
+      <div className="flex flex-wrap gap-3 mt-4 pt-4 border-t border-gray-100">
+        {Object.entries(COLORES_ESTADO).map(([estado, { bg }]) => (
+          <div key={estado} className="flex items-center gap-1.5">
+            <div className={`w-2.5 h-2.5 rounded-full ${bg}`} />
+            <span className="text-xs text-gray-500 capitalize">{estado.replace("_", " ")}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
-export default Panel;
+Calendario.propTypes = {
+  reservas: PropTypes.array.isRequired,
+  anio: PropTypes.number.isRequired,
+  mes: PropTypes.number.isRequired,
+  onCambiarMes: PropTypes.func.isRequired,
+};
+
+
+// ── Panel principal ──────────────────────────────────────────────
+export default function Panel() {
+  const { usuario } = useAuth();
+  const navegar = useNavigate();
+  const hoy = new Date();
+
+  const [stats, setStats] = useState(null);
+  const [cargandoStats, setCargandoStats] = useState(true);
+  const [reservasCal, setReservasCal] = useState([]);
+  const [anio, setAnio] = useState(hoy.getFullYear());
+  const [mes, setMes] = useState(hoy.getMonth());
+
+  // Stats
+  useEffect(() => {
+    reservaService.stats()
+      .then(res => setStats(res.data))
+      .catch(() => setStats(null))
+      .finally(() => setCargandoStats(false));
+  }, []);
+
+  // Calendario
+  const cargarCalendario = useCallback(() => {
+    reservaService.calendario(anio, mes + 1)
+      .then(res => setReservasCal(res.data))
+      .catch(() => setReservasCal([]));
+  }, [anio, mes]);
+
+  useEffect(() => { cargarCalendario(); }, [cargarCalendario]);
+
+  const cambiarMes = (delta) => {
+    const fecha = new Date(anio, mes + delta, 1);
+    setAnio(fecha.getFullYear());
+    setMes(fecha.getMonth());
+  };
+
+  // Datos gráfica — reservas próximas por fecha
+  const datosGrafica = stats?.reservas_proximas
+    ?.slice(0, 7)
+    .map(r => ({
+      dia: r.fecha_inicio,
+      monto: Number(r.precio_total),
+    })) || [];
+
+  const puedeCrearReserva = tienePermiso(usuario, "reservas", "crear");
+  const puedeVerClientes = tienePermiso(usuario, "clientes", "ver");
+  const puedeVerInventario = tienePermiso(usuario, "inventario", "ver");
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="p-6 max-w-7xl mx-auto"
+    >
+      {/* Encabezado */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-[#1A1A1A]">
+          Bienvenido, {usuario?.first_name || usuario?.username} 👋
+        </h1>
+        <p className="text-gray-500 text-sm mt-1">
+          {new Date().toLocaleDateString("es-CO", {
+            weekday: "long", year: "numeric",
+            month: "long", day: "numeric"
+          })}
+        </p>
+      </div>
+
+      {/* Stats */}
+      {cargandoStats ? (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl p-5 border
+                                                border-gray-100 animate-pulse h-28" />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <TarjetaStat
+            icono={BookOpen}
+            colorFondo="bg-blue-50"
+            colorIcono="text-blue-500"
+            etiqueta="Reservas hoy"
+            valor={stats?.reservas_hoy ?? "—"}
+            subcampo={`${stats?.reservas_mes ?? 0} este mes`}
+          />
+          <TarjetaStat
+            icono={DollarSign}
+            colorFondo="bg-green-50"
+            colorIcono="text-green-500"
+            etiqueta="Ingresos del mes"
+            valor={`$${Number(stats?.ingresos_mes ?? 0)
+              .toLocaleString("es-CO")}`}
+          />
+          <TarjetaStat
+            icono={AlertTriangle}
+            colorFondo="bg-red-50"
+            colorIcono="text-red-500"
+            etiqueta="Ítems dañados"
+            valor={stats?.items_danados ?? "—"}
+          />
+          <TarjetaStat
+            icono={TrendingUp}
+            colorFondo="bg-amber-50"
+            colorIcono="text-amber-500"
+            etiqueta="Próximas reservas"
+            valor={stats?.reservas_proximas?.length ?? "—"}
+            subcampo="en los próximos días"
+          />
+        </div>
+      )}
+
+      {/* Gráfica + Calendario */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
+
+        {/* Gráfica de reservas próximas */}
+        <div className="bg-white rounded-2xl p-6 border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-gray-800">
+              Próximas reservas
+            </h2>
+            <TrendingUp className="w-4 h-4 text-[#F5A623]" />
+          </div>
+
+          {datosGrafica.length === 0 ? (
+            <div className="flex items-center justify-center h-48 text-gray-400">
+              <p className="text-sm">No hay reservas próximas</p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={200}>
+              <AreaChart data={datosGrafica}>
+                <defs>
+                  <linearGradient id="gradiente" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#F5A623" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#F5A623" stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="dia"
+                  tick={{ fontSize: 11, fill: "#9ca3af" }}
+                  axisLine={false} tickLine={false} />
+                <YAxis
+                  tick={{ fontSize: 11, fill: "#9ca3af" }}
+                  axisLine={false} tickLine={false}
+                  tickFormatter={v =>
+                    `$${(v / 1000).toFixed(0)}k`} />
+                <Tooltip
+                  formatter={v =>
+                    [`$${Number(v).toLocaleString("es-CO")}`, "Monto"]}
+                  contentStyle={{
+                    borderRadius: "10px",
+                    border: "1px solid #e5e7eb",
+                    fontSize: "12px"
+                  }} />
+                <Area type="monotone" dataKey="monto"
+                  stroke="#F5A623" strokeWidth={2}
+                  fill="url(#gradiente)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+
+        {/* Calendario */}
+        <Calendario
+          reservas={reservasCal}
+          anio={anio}
+          mes={mes}
+          onCambiarMes={cambiarMes}
+        />
+      </div>
+
+      {/* Acciones rápidas según permisos */}
+      <div className="bg-white rounded-2xl p-6 border border-gray-100">
+        <h2 className="font-semibold text-gray-800 mb-4">
+          Acciones rápidas
+        </h2>
+        <div className="flex flex-wrap gap-3">
+          {puedeCrearReserva && (
+            <button
+              onClick={() => navegar("/reservas/nueva")}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl
+                                       bg-[#F5A623] text-[#1A1A1A] font-semibold
+                                       hover:bg-[#D4890A] hover:text-white
+                                       transition-colors text-sm shadow-sm">
+              <Plus className="w-4 h-4" />
+              Nueva reserva
+            </button>
+          )}
+          {puedeVerClientes && (
+            <button
+              onClick={() => navegar("/clientes")}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl
+                                       border border-gray-200 text-gray-700
+                                       hover:bg-gray-50 transition-colors text-sm">
+              <Users className="w-4 h-4" />
+              Ver clientes
+            </button>
+          )}
+          {puedeVerInventario && (
+            <button
+              onClick={() => navegar("/inventario")}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl
+                                       border border-gray-200 text-gray-700
+                                       hover:bg-gray-50 transition-colors text-sm">
+              <Package className="w-4 h-4" />
+              Ver inventario
+            </button>
+          )}
+          <button
+            onClick={() => navegar("/calendario")}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl
+                                   border border-gray-200 text-gray-700
+                                   hover:bg-gray-50 transition-colors text-sm">
+            <Calendar className="w-4 h-4" />
+            Calendario
+          </button>
+        </div>
+      </div>
+
+      {/* Reservas próximas */}
+      {stats?.reservas_proximas?.length > 0 && (
+        <div className="bg-white rounded-2xl p-6 border border-gray-100 mt-5">
+          <h2 className="font-semibold text-gray-800 mb-4">
+            Próximas reservas pendientes
+          </h2>
+          <div className="space-y-2">
+            {stats.reservas_proximas.map(r => (
+              <button key={r.id}
+                onClick={() => navegar(`/reservas/${r.id}`)}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-gray-100 hover:bg-gray-50 transition-colors text-left">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-yellow-400" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-800">
+                      {r.cliente_detalle?.nombre}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {r.propiedad_nombre}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-700">
+                    {r.fecha_inicio}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {r.dias} día{r.dias !== 1 ? "s" : ""}
+                  </p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </motion.div>
+  );
+}

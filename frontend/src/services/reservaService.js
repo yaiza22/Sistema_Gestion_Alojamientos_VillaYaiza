@@ -24,6 +24,10 @@ const reservaService = {
     iniciarCheckout: (id, data) => api.post(`/reservas/${id}/checkout/`, data),
     actualizarCostoDanio: (id, data) => api.put(`/reservas/${id}/costo-danio/`, data),
     confirmarCompletada: (id) => api.post(`/reservas/${id}/completar/`),
+
+    // Stats dashboard
+    stats: () => api.get('/reservas/stats/'),
+    calendario: (anio, mes) => api.get('/reservas/calendario/', { params: { anio, mes } }),
 };
 
 export default reservaService;
