@@ -8,7 +8,8 @@ import FormularioUsuarios from "../pages/usuarios/FormularioUsuarios";
 import CambiarPassword from "../pages/usuarios/CambiarPassword";
 import ListaPropiedades from "../pages/propiedades/ListaPropiedades";
 import FormularioPropiedades from "../pages/propiedades/FormularioPropiedades";
-import Clientes from "../pages/Clientes";
+import ListaClientes from "../pages/clientes/ListaClientes";
+import FormularioClientes from "../pages/clientes/FormularioClientes";
 
 function RutasApp() {
   return (
@@ -84,13 +85,28 @@ function RutasApp() {
           }
         />
 
-        <Route
-          path="/clientes"
+        <Route path="/clientes" 
           element={
             <RutaProtegida>
-              <Clientes />
+              <ListaClientes />
             </RutaProtegida>
           }
+        />
+        
+        <Route path="/clientes/nuevo" 
+          element={
+            <RutaProtegida>
+              <FormularioClientes />
+            </RutaProtegida>
+          }
+        />
+
+        <Route path="/clientes/:id/editar" 
+          element={
+            <RutaProtegida>
+              <FormularioClientes />
+            </RutaProtegida>
+          } 
         />
       </Routes>
     </BrowserRouter>
