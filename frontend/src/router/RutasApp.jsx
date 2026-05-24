@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import InicioSesion from "../pages/inicioSesion";
 import Panel from "../pages/panel";
+import Layout from "../components/Layout";
 import RutaProtegida from "../components/RutaProtegida";
 
 import ListaUsuarios from "../pages/usuarios/ListaUsuarios";
@@ -26,32 +27,31 @@ function RutasApp() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<InicioSesion />} />
+        <Route path="/dashboard" element={<RutaProtegida><Layout><Panel /></Layout></RutaProtegida>}/>
 
-        <Route path="/dashboard" element={<RutaProtegida><Panel /></RutaProtegida>}/>
+        <Route path="/usuarios" element={<RutaProtegida><Layout><ListaUsuarios /></Layout></RutaProtegida>} />
+        <Route path="/usuarios/nuevo" element={<RutaProtegida><Layout><FormularioUsuarios /></Layout></RutaProtegida>} />
+        <Route path="/usuarios/:id/editar" element={<RutaProtegida><Layout><FormularioUsuarios /></Layout></RutaProtegida>} />
+        <Route path="/usuarios/:id/password" element={<RutaProtegida><Layout><CambiarPassword /></Layout></RutaProtegida>} />
 
-        <Route path="/usuarios" element={<RutaProtegida><ListaUsuarios /></RutaProtegida>}/>
-        <Route path="/usuarios/nuevo" element={<RutaProtegida><FormularioUsuarios /></RutaProtegida>}/>
-        <Route path="/usuarios/:id/editar" element={<RutaProtegida><FormularioUsuarios /></RutaProtegida>}/>
-        <Route path="/usuarios/:id/password" element={<RutaProtegida><CambiarPassword /></RutaProtegida>}/>
+        <Route path="/propiedades" element={<RutaProtegida><Layout><ListaPropiedades /></Layout></RutaProtegida>} />
+        <Route path="/propiedades/nueva" element={<RutaProtegida><Layout><FormularioPropiedades /></Layout></RutaProtegida>} />
+        <Route path="/propiedades/:id/editar" element={<RutaProtegida><Layout><FormularioPropiedades /></Layout></RutaProtegida>} />
 
-        <Route path="/propiedades" element={<RutaProtegida><ListaPropiedades /></RutaProtegida>}/>
-        <Route path="/propiedades/nueva" element={<RutaProtegida><FormularioPropiedades /></RutaProtegida>}/>
-        <Route path="/propiedades/:id/editar" element={<RutaProtegida><FormularioPropiedades /></RutaProtegida>}/>
+        <Route path="/clientes" element={<RutaProtegida><Layout><ListaClientes /></Layout></RutaProtegida>} />
+        <Route path="/clientes/nuevo" element={<RutaProtegida><Layout><FormularioClientes /></Layout></RutaProtegida>} />
+        <Route path="/clientes/:id/editar" element={<RutaProtegida><Layout><FormularioClientes /></Layout></RutaProtegida>} />
 
-        <Route path="/clientes" element={<RutaProtegida><ListaClientes /></RutaProtegida>}/>
-        <Route path="/clientes/nuevo" element={<RutaProtegida><FormularioClientes /></RutaProtegida>}/>
-        <Route path="/clientes/:id/editar" element={<RutaProtegida><FormularioClientes /></RutaProtegida>}/>
+        <Route path="/inventario" element={<RutaProtegida><Layout><ListaInventario /></Layout></RutaProtegida>} />
+        <Route path="/inventario/nuevo" element={<RutaProtegida><Layout><FormularioInventario /></Layout></RutaProtegida>} />
+        <Route path="/inventario/:id/editar" element={<RutaProtegida><Layout><FormularioInventario /></Layout></RutaProtegida>} />
 
-        <Route path="/inventario" element={<RutaProtegida><ListaInventario /></RutaProtegida>}/>
-        <Route path="/inventario/nuevo" element={<RutaProtegida><FormularioInventario /></RutaProtegida>}/>
-        <Route path="/inventario/:id/editar" element={<RutaProtegida><FormularioInventario /></RutaProtegida>}/>
-
-        <Route path="/reservas" element={<RutaProtegida><ListaReservas /></RutaProtegida>} />
-        <Route path="/reservas/nueva" element={<RutaProtegida><FormularioReservas /></RutaProtegida>} />
-        <Route path="/reservas/:id" element={<RutaProtegida><DetalleReserva /></RutaProtegida>} />
-        <Route path="/reservas/:id/editar" element={<RutaProtegida><FormularioReservas /></RutaProtegida>} />
-        <Route path="/reservas/:id/checklist" element={<RutaProtegida><ChecklistReserva /></RutaProtegida>} />
-        <Route path="/reservas/:id/checkout" element={<RutaProtegida><ChecklistReserva /></RutaProtegida>} />
+        <Route path="/reservas" element={<RutaProtegida><Layout><ListaReservas /></Layout></RutaProtegida>} />
+        <Route path="/reservas/nueva" element={<RutaProtegida><Layout><FormularioReservas /></Layout></RutaProtegida>} />
+        <Route path="/reservas/:id" element={<RutaProtegida><Layout><DetalleReserva /></Layout></RutaProtegida>} />
+        <Route path="/reservas/:id/editar" element={<RutaProtegida><Layout><FormularioReservas /></Layout></RutaProtegida>} />
+        <Route path="/reservas/:id/checklist" element={<RutaProtegida><Layout><ChecklistReserva /></Layout></RutaProtegida>} />
+        <Route path="/reservas/:id/checkout" element={<RutaProtegida><Layout><ChecklistReserva /></Layout></RutaProtegida>} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import (ClienteListCreateView, ClienteDetailView, ReservaListCreateView, ReservaDetailView, 
-                    verificar_disponibilidad, cancelar_reserva, agregar_pago, eliminar_pago, iniciar_checkin, 
-                    actualizar_checklist_item, iniciar_checkout, actualizar_costo_danio, confirmar_completada,)
+from .views import (ClienteListCreateView, ClienteDetailView, ReservaListCreateView, ReservaDetailView, verificar_disponibilidad, 
+                    cancelar_reserva, agregar_pago, eliminar_pago, iniciar_checkin, actualizar_checklist_item, 
+                    iniciar_checkout, actualizar_costo_danio, confirmar_completada, stats_dashboard, reservas_calendario,)
 
 urlpatterns = [
     # Clientes
@@ -26,4 +26,8 @@ urlpatterns = [
     path('<int:pk>/checkout/', iniciar_checkout, name='iniciar-checkout'),
     path('<int:pk>/costo-danio/', actualizar_costo_danio, name='actualizar-costo-danio'),
     path('<int:pk>/completar/', confirmar_completada, name='confirmar-completada'),
+
+    # Stats dashboard
+    path('stats/', stats_dashboard, name='stats-dashboard'),
+    path('calendario/', reservas_calendario, name='reservas-calendario'),
 ]

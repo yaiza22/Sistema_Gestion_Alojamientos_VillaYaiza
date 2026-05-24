@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from .models import Cliente, Reserva, Pago, ChecklistItem, CostoDanio
@@ -370,3 +371,62 @@ def actualizar_costo_danio(request, pk):
     serializer.is_valid(raise_exception=True)
     serializer.save()
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def stats_dashboard(request):
+    from django.utils import timezone
+    from datetime import date
+    hoy = date.today()
+
+    reservas_hoy = Reserva.objects.filter(
+        fecha_inicio__lte=hoy,
+        fecha_fin__gte=hoy,
+        estado__in=['pendiente', 'en_curso']
+    ).count()
+
+    reservas_mes = Reserva.objects.filter(
+        fecha_inicio__year=hoy.year,
+        fecha_inicio__month=hoy.month,
+    ).count()
+
+    ingresos_mes = Pago.objects.filter(
+        fecha_pago__year=hoy.year,
+        fecha_pago__month=hoy.month,
+        es_devolucion=False
+    ).aggregate(total=Sum('monto'))['total'] or 0
+
+    from inventario.models import ItemInventario
+    items_danados = ItemInventario.objects.filter(
+        esta_danado=True
+    ).count()
+
+    reservas_proximas = Reserva.objects.filter(
+        fecha_inicio__gte=hoy,
+        estado='pendiente'
+    ).order_by('fecha_inicio')[:5]
+
+    return Response({
+        'reservas_hoy': reservas_hoy,
+        'reservas_mes': reservas_mes,
+        'ingresos_mes': float(ingresos_mes),
+        'items_danados': items_danados,
+        'reservas_proximas': ReservaSerializer(reservas_proximas, many=True).data,
+    })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def reservas_calendario(request):
+    from datetime import date
+    anio = int(request.query_params.get('anio', date.today().year))
+    mes  = int(request.query_params.get('mes', date.today().month))
+
+    reservas = Reserva.objects.filter(
+        fecha_inicio__year=anio,
+        fecha_inicio__month=mes,
+        estado__in=['pendiente', 'en_curso', 'completada']
+    ).select_related('cliente', 'propiedad')
+
+    return Response(ReservaSerializer(reservas, many=True).data)
