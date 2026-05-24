@@ -16,6 +16,7 @@ class Propiedad(models.Model):
     precio_temporada_baja = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     precio_temporada_alta = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     esta_activa = models.BooleanField(default=True)
+    imagen = models.ImageField(upload_to='propiedades/', blank=True, null=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     class Meta:
