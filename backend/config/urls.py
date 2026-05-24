@@ -17,6 +17,7 @@ urlpatterns = [
 
     # Propiedades
     path('api/propiedades/', include('propiedades.urls')),
+    path('api/inventario/', include('inventario.urls')),
 
     #Reservas
     path('api/reservas/', include('reservas.urls')),

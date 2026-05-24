@@ -32,7 +32,7 @@ const FORM_VACIO = {
     numero_documento: "",
 };
 
-export default function FormCliente() {
+export default function FormularioClientes() {
     const { id } = useParams();
     const esEdicion = Boolean(id);
     const navegar = useNavigate();

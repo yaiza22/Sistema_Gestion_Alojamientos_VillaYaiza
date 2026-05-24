@@ -10,6 +10,8 @@ import ListaPropiedades from "../pages/propiedades/ListaPropiedades";
 import FormularioPropiedades from "../pages/propiedades/FormularioPropiedades";
 import ListaClientes from "../pages/clientes/ListaClientes";
 import FormularioClientes from "../pages/clientes/FormularioClientes";
+import ListaInventario from "../pages/inventario/ListaInventario";
+import FormularioInventario from "../pages/inventario/FormularioInventario";
 
 function RutasApp() {
   return (
@@ -25,31 +27,31 @@ function RutasApp() {
             </RutaProtegida>
           }
         />
-        <Route 
-          path="/usuarios" 
+        <Route
+          path="/usuarios"
           element={
             <RutaProtegida>
               <ListaUsuarios />
             </RutaProtegida>
-          } 
+          }
         />
 
-        <Route 
-          path="/usuarios/nuevo" 
+        <Route
+          path="/usuarios/nuevo"
           element={
             <RutaProtegida>
               <FormularioUsuarios />
             </RutaProtegida>
-          } 
+          }
         />
 
-        <Route 
-          path="/usuarios/:id/editar" 
+        <Route
+          path="/usuarios/:id/editar"
           element={
             <RutaProtegida>
               <FormularioUsuarios />
             </RutaProtegida>
-          } 
+          }
         />
 
         <Route
@@ -61,7 +63,7 @@ function RutasApp() {
           }
         />
 
-        <Route path="/propiedades" 
+        <Route path="/propiedades"
           element={
             <RutaProtegida>
               <ListaPropiedades />
@@ -69,15 +71,7 @@ function RutasApp() {
           }
         />
 
-        <Route path="/propiedades/nueva" 
-          element={
-            <RutaProtegida>
-              <FormularioPropiedades />
-            </RutaProtegida>
-          } 
-        />
-
-        <Route path="/propiedades/:id/editar" 
+        <Route path="/propiedades/nueva"
           element={
             <RutaProtegida>
               <FormularioPropiedades />
@@ -85,15 +79,23 @@ function RutasApp() {
           }
         />
 
-        <Route path="/clientes" 
+        <Route path="/propiedades/:id/editar"
+          element={
+            <RutaProtegida>
+              <FormularioPropiedades />
+            </RutaProtegida>
+          }
+        />
+
+        <Route path="/clientes"
           element={
             <RutaProtegida>
               <ListaClientes />
             </RutaProtegida>
           }
         />
-        
-        <Route path="/clientes/nuevo" 
+
+        <Route path="/clientes/nuevo"
           element={
             <RutaProtegida>
               <FormularioClientes />
@@ -101,12 +103,36 @@ function RutasApp() {
           }
         />
 
-        <Route path="/clientes/:id/editar" 
+        <Route path="/clientes/:id/editar"
           element={
             <RutaProtegida>
               <FormularioClientes />
             </RutaProtegida>
-          } 
+          }
+        />
+
+        <Route path="/inventario"
+          element={
+            <RutaProtegida>
+              <ListaInventario />
+            </RutaProtegida>
+          }
+        />
+
+        <Route path="/inventario/nuevo"
+          element={
+            <RutaProtegida>
+              <FormularioInventario />
+            </RutaProtegida>
+          }
+        />
+
+        <Route path="/inventario/:id/editar"
+          element={
+            <RutaProtegida>
+              <FormularioInventario />
+            </RutaProtegida>
+          }
         />
       </Routes>
     </BrowserRouter>

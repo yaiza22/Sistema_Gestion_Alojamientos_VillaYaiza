@@ -34,7 +34,7 @@ const FORM_VACIO = {
     esta_activa: true,
 };
 
-export default function FormPropiedad() {
+export default function FormularioPropiedades() {
     const { id } = useParams();
     const esEdicion = Boolean(id);
     const navegar = useNavigate();
