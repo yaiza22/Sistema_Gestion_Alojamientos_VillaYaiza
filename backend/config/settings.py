@@ -1,6 +1,8 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import dj_database_url
+
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -12,8 +14,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
-
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -36,7 +37,10 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware', #
+    
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', #Solo para producción, no afecta desarrollo
+    
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -45,8 +49,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# CORS
-CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]  # Puerto de Vite
+# CORS - HIBRIDO, deploy and debug
+CORS_ALLOWED_ORIGINS = os.getenv(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:5173"
+).split(",")
 CORS_ALLOW_CREDENTIALS = True
 
 # REST Framework + JWT
@@ -81,15 +88,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
-# Desarrollo: SQLite local
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Para producción (Neon - postgres) y desarrollo (SQLite)
+if os.getenv("DATABASE_URL"):
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=os.getenv("DATABASE_URL"),
+            conn_max_age=600,
+            ssl_require=True
+        )
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
+
+FRONTEND_URL = os.getenv(
+    "FRONTEND_URL",
+    "http://localhost:5173"
+)
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -121,10 +141,25 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # Archivos estáticos y media (para imágenes de inventario)
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 STATIC_URL = '/static/'
+# Esto no rompe desarrollo, ayuda a Render
+STATICFILES_STORAGE = (
+    'whitenoise.storage.CompressedManifestStaticFilesStorage'
+)
+
+if os.getenv("CLOUDINARY_URL"):
+    INSTALLED_APPS += [
+        'cloudinary',
+        'cloudinary_storage',
+    ]
+
+    DEFAULT_FILE_STORAGE = (
+        'cloudinary_storage.storage.MediaCloudinaryStorage'
+    )
+else:
+    #Imagenes van a backend/media
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 # Migraciones
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -170,7 +205,9 @@ SOCIAL_AUTH_PIPELINE = (
 # Redirigir al frontend después del login con Google
 #SOCIAL_AUTH_LOGIN_REDIRECT_URL  = 'http://localhost:5173/auth/callback'
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/api/auth/google/callback-jwt/'
-SOCIAL_AUTH_LOGIN_ERROR_URL     = 'http://localhost:5173/?error=google'
+SOCIAL_AUTH_LOGIN_ERROR_URL = (
+    f"{FRONTEND_URL}/?error=google"
+)
 
 # Usar nuestro modelo de usuario personalizado
 SOCIAL_AUTH_USER_MODEL = 'cuentas.UsuarioPersonalizado'
