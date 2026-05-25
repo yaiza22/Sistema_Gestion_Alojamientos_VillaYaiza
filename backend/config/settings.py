@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'contratos', #
     'inventario', #
     'reportes', #
+    'social_django',
 ]
 
 MIDDLEWARE = [
@@ -153,3 +154,48 @@ STATIC_URL = '/static/'
 # Migraciones
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'cuentas.UsuarioPersonalizado'
+
+########### LOGIN GOOGLE
+# Auth backends — agrega Google al backend de autenticación
+AUTHENTICATION_BACKENDS = [
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+SOCIAL_AUTH_JSONFIELD_ENABLED = True
+
+# URLs de social-auth
+SOCIAL_AUTH_URL_PREFIX = 'auth'
+
+# Credenciales de Google
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY    = os.getenv('GOOGLE_CLIENT_ID')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+
+# Qué datos pedir a Google
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    'openid',
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile',
+]
+
+# Pipeline personalizado para crear UsuarioPersonalizado
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+    'cuentas.pipeline.guardar_datos_google',  # ← pipeline personalizado
+)
+
+# Redirigir al frontend después del login con Google
+#SOCIAL_AUTH_LOGIN_REDIRECT_URL  = 'http://localhost:5173/auth/callback'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/api/auth/google/callback-jwt/'
+SOCIAL_AUTH_LOGIN_ERROR_URL     = 'http://localhost:5173/?error=google'
+
+# Usar nuestro modelo de usuario personalizado
+SOCIAL_AUTH_USER_MODEL = 'cuentas.UsuarioPersonalizado'

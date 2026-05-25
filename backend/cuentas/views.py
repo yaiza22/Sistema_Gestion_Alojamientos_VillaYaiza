@@ -1,17 +1,30 @@
 from rest_framework.decorators import api_view, permission_classes
 #from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import UsuarioPersonalizado, PermisosUsuario
-from .serializers import (
-    UsuarioSerializer,
-    CrearUsuarioSerializer,
-    EditarUsuarioSerializer,
-    CambiarPasswordSerializer,
-)
+from .serializers import ( UsuarioSerializer, CrearUsuarioSerializer, EditarUsuarioSerializer, CambiarPasswordSerializer, )
+# Google
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.shortcuts import redirect
+from django.contrib.auth import get_user_model
+
+def google_callback(request):
+    user = request.user
+
+    if not user or not user.is_authenticated:
+        return redirect('http://localhost:5173/?error=google')
+
+    refresh = RefreshToken.for_user(user)
+    access_token  = str(refresh.access_token)
+    refresh_token = str(refresh)
+
+    return redirect(
+        f'http://localhost:5173/auth/callback'
+        f'?access={access_token}&refresh={refresh_token}'
+    )
 
 def puede_gestionar_usuarios(usuario):
     return usuario.rol in ('propietario', 'asistente')
@@ -140,21 +153,3 @@ def cambiar_password(request, pk):
 def hello_world(request):
     return Response({"mensaje": "Hola, BD desde Django con JWT conectado."})
 
-"""
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def hello_world(request):
-    return Response({'mensaje': 'Backend conectado correctamente', 'status': 'ok'})
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def perfil(request):
-    user = request.user
-    return Response({
-        'id': user.id,
-        'username': user.username,
-        'email': user.email,
-        'rol': user.rol,
-        'nombre': f"{user.first_name} {user.last_name}".strip()
-    })
-"""

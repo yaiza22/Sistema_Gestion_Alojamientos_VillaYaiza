@@ -39,11 +39,12 @@ export function AuthProvider({ children }) {
     }
   }, [cargarPerfil]);
 
-  const login = useCallback((accessToken, refreshToken, recordar) => {
+  const login = useCallback(async (accessToken, refreshToken, recordar) => {
     const storage = recordar ? localStorage : sessionStorage;
     storage.setItem("accessToken", accessToken);
     storage.setItem("refreshToken", refreshToken);
-    cargarPerfil();
+    setCargando(true);
+    await cargarPerfil();
   }, [cargarPerfil]);
 
   const logout = useCallback(() => {
