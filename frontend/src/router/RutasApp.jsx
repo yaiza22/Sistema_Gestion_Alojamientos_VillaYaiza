@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import InicioSesion from "../pages/inicioSesion";
+import AuthCallback from "../pages/AuthCallback";
+
 import Panel from "../pages/panel";
 import Layout from "../components/Layout";
 import RutaProtegida from "../components/RutaProtegida";
@@ -29,6 +31,8 @@ function RutasApp() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<InicioSesion />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+
         <Route path="/dashboard" element={<RutaProtegida><Layout><Panel /></Layout></RutaProtegida>}/>
 
         <Route path="/usuarios" element={<RutaProtegida><Layout><ListaUsuarios /></Layout></RutaProtegida>} />
