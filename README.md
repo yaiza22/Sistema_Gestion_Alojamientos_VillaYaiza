@@ -2,6 +2,10 @@
 
 Sistema web para la administración de reservas, clientes, propiedades, inventario y usuarios de Alojamientos Villa Yaiza, un negocio familiar de alquiler de fincas con fines turísticos.
 
+> Para instrucciones detalladas de cada capa ver:
+> - [`backend/README.md`](./backend/README.md)
+> - [`frontend/README.md`](./frontend/README.md)
+
 ---
 
 ## Contexto del proyecto
@@ -26,107 +30,15 @@ Este sistema busca centralizar esa operación en una plataforma web accesible de
 
 ## Módulos del sistema
 
-### Clientes
-Registro, consulta, actualización y eliminación de clientes con campos de nombre, teléfono, email, tipo y número de documento.
-
-### Reservas
-Gestión del ciclo completo de una reserva: fechas, propiedad, cliente, estado (pendiente, en curso, completada, cancelada) y cálculo de precios según temporada. Incluye checklist de inventario y vista de detalle.
-
-### Propiedades
-Administración de los alojamientos disponibles: nombre, tipo (finca, apartamento, cabaña), capacidad, ubicación y precios por temporada.
-
-### Inventario
-Control de ítems por propiedad: registro, estado, cantidad, daños y costos asociados.
-
-### Usuarios
-Autenticación con JWT. Maneja tres roles: `admin`, `asistente` y `empleado`, cada uno con distintos niveles de acceso. Incluye gestión de usuarios y cambio de contraseña.
-
-### Contratos
-Generación de contratos en PDF a partir de los datos de cada reserva usando WeasyPrint.
-
-### Reportes
-Reportes financieros con gráficas (Recharts) y exportación a PDF.
-
----
-
-## Estructura del repositorio
-
-```
-SISTEMA_GESTION_ALOJAMIENTOS_VILLAYAIZA/
-│
-├── backend/                        # API REST con Django
-│   ├── config/                     # Configuración global (settings, urls, wsgi, asgi)
-│   ├── contratos/                  # Generación de contratos PDF
-│   ├── cuentas/                    # Usuarios, roles y autenticación JWT
-│   │   ├── serializers.py
-│   │   ├── urls.py
-│   │   └── views.py
-│   ├── inventario/                 # Control de ítems por propiedad
-│   │   ├── serializers.py
-│   │   ├── urls.py
-│   │   └── views.py
-│   ├── propiedades/                # Registro de alojamientos
-│   │   ├── serializers.py
-│   │   ├── urls.py
-│   │   └── views.py
-│   ├── reportes/                   # Reportes financieros
-│   ├── reservas/                   # Reservas, clientes y pagos
-│   │   ├── serializers.py
-│   │   ├── urls.py
-│   │   └── views.py
-│   ├── .env                        # Variables de entorno (no se versiona)
-│   ├── manage.py
-│   └── requirements.txt
-│
-├── frontend/                       # SPA con React + Vite
-│   ├── public/
-│   └── src/
-│       ├── components/
-│       │   ├── Layout.jsx
-│       │   ├── MatrizPermisos.jsx
-│       │   └── RutaProtegida.jsx
-│       ├── context/
-│       │   ├── AuthContext.js
-│       │   └── AuthProvider.jsx
-│       ├── hooks/
-│       │   └── useAuth.js
-│       ├── pages/
-│       │   ├── clientes/
-│       │   │   ├── FormularioClientes.jsx
-│       │   │   └── ListaClientes.jsx
-│       │   ├── inventario/
-│       │   │   ├── FormularioInventario.jsx
-│       │   │   └── ListaInventario.jsx
-│       │   ├── propiedades/
-│       │   │   ├── FormularioPropiedades.jsx
-│       │   │   └── ListaPropiedades.jsx
-│       │   ├── reservas/
-│       │   │   ├── ChecklistReserva.jsx
-│       │   │   ├── DetalleReserva.jsx
-│       │   │   ├── FormularioReservas.jsx
-│       │   │   └── ListaReservas.jsx
-│       │   ├── usuarios/
-│       │   │   ├── CambiarPassword.jsx
-│       │   │   ├── FormularioUsuarios.jsx
-│       │   │   └── ListaUsuarios.jsx
-│       │   ├── inicioSesion.jsx
-│       │   └── panel.jsx
-│       ├── router/
-│       │   └── RutasApp.jsx
-│       ├── services/
-│       │   ├── api.js
-│       │   ├── clienteService.js
-│       │   ├── inventarioService.js
-│       │   ├── propiedadService.js
-│       │   └── reservaService.js
-│       ├── utils/
-│       │   ├── calculadoraPrecio.js
-│       │   └── permisos.js
-│       ├── App.jsx
-│       └── main.jsx
-│
-└── .gitignore
-```
+| Módulo | Descripción |
+|---|---|
+| **Clientes** | Registro, consulta, actualización y eliminación de clientes |
+| **Reservas** | Ciclo completo de reserva con checklist de inventario y cálculo de precios por temporada |
+| **Propiedades** | Administración de alojamientos disponibles con precios por temporada |
+| **Inventario** | Control de ítems por propiedad: estado, cantidad, daños y costos |
+| **Usuarios** | Autenticación JWT con roles `admin`, `asistente` y `empleado` |
+| **Contratos** | Generación de contratos en PDF por reserva usando WeasyPrint |
+| **Reportes** | Reportes financieros con gráficas (Recharts) y exportación a PDF |
 
 ---
 
@@ -146,6 +58,21 @@ SISTEMA_GESTION_ALOJAMIENTOS_VILLAYAIZA/
 | Base de datos (producción) | PostgreSQL en Neon | — |
 | Hosting frontend | Vercel | — |
 | Hosting backend | Render | — |
+
+---
+
+## Estructura del repositorio
+
+```
+SISTEMA_GESTION_ALOJAMIENTOS_VILLAYAIZA/
+│
+├── README.md                       # Este archivo
+├── backend/                        # API REST con Django
+│   └── README.md
+├── frontend/                       # SPA con React + Vite
+│   └── README.md
+└── .gitignore
+```
 
 ---
 
@@ -193,42 +120,3 @@ Los roles disponibles son `admin`, `asistente` y `empleado`.
 
 ---
 
-## Inicio rápido
-
-### Backend
-
-```bash
-cd backend
-python -m venv venv && venv\Scripts\activate   # Windows
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver
-```
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-El proxy de Vite redirige las peticiones `/api/*` al backend en `http://localhost:8000` durante el desarrollo.
-
----
-
-## Variables de entorno
-
-Crea un archivo `.env` en la carpeta `backend/` con el siguiente contenido:
-
-```
-SECRET_KEY=django-insecure-clave-local-aqui
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-```
-
----
-
-**Materia:** Ingeniería de Software
-**Stakeholder:** Ana Lucía Dueñez Vanegas — Administradora, Alojamientos Villa Yaiza
