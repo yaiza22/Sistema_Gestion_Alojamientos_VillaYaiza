@@ -80,7 +80,7 @@ function InicioSesion() {
   };
   */
   const manejarGoogle = () => {
-    window.location.href = 'http://localhost:8000/api/auth/login/google-oauth2/';
+    window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/login/google-oauth2`
   };
 
   return (

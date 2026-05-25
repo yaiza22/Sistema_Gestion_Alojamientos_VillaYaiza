@@ -516,12 +516,12 @@ export default function DetalleReserva() {
                                 <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2">
                                     <p className="text-xs text-gray-600 flex-1 truncate">
                                         {/*{window.location.origin}/contratos/ver/{contrato.token_publico}*/}
-                                        {import.meta.env.VITE_API_URL}/contratos/ver/{contrato.token_publico}/
+                                        {import.meta.env.VITE_API_URL}/api/contratos/ver/{contrato.token_publico}/
                                     </p>
                                     <button
                                         onClick={() => {
                                             navigator.clipboard.writeText(
-                                                `${import.meta.env.VITE_API_URL}/contratos/ver/${contrato.token_publico}/`
+                                                `${import.meta.env.VITE_API_URL}/api/contratos/ver/${contrato.token_publico}/`
                                             );
                                             alert("Enlace copiado al portapapeles");
                                         }}
