@@ -39,7 +39,10 @@ api.interceptors.response.use(
         }
 
         // Llamada al endpoint de Django para obtener un nuevo access token
-        const { data } = await axios.post('/api/token/refresh/', {
+        /*const { data } = await axios.post('/api/token/refresh/', {
+          refresh: refreshToken,
+        });*/
+        const { data } = await api.post('/token/refresh/', {
           refresh: refreshToken,
         });
 
