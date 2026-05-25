@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import { useAuth } from "../../hooks/useAuth";
 import { tienePermiso } from "../../utils/permisos";
 import reservaService from "../../services/reservaService";
+import contratoService from "../../services/contratoService";
 
 const ESTADOS_CONFIG = {
     pendiente: { label: "Pendiente", clase: "bg-yellow-100 text-yellow-700" },
@@ -182,6 +183,9 @@ export default function DetalleReserva() {
     const [modalPago, setModalPago] = useState(false);
     const [procesando, setProcesando] = useState(false);
 
+    const [contrato, setContrato] = useState(null);
+    const [generandoContrato, setGenerandoContrato] = useState(false);
+
     const cargar = () => {
         setCargando(true);
         reservaService.obtener(id)
@@ -190,7 +194,17 @@ export default function DetalleReserva() {
             .finally(() => setCargando(false));
     };
 
-    useEffect(() => { cargar(); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
+    // Carga el contrato si existe al cargar la reserva:
+    const cargarContrato = () => {
+        contratoService.obtener(id)
+            .then(res => setContrato(res.data))
+            .catch(() => setContrato(null));
+    };
+
+    useEffect(() => {
+        cargar();
+        cargarContrato();
+    }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // ── Handlers ────────────────────────────────────────────────────────────
 
@@ -238,6 +252,30 @@ export default function DetalleReserva() {
         } catch { alert("Error al realizar el check-in."); }
         finally { setProcesando(false); }
     };
+
+    // Handler generar contrato:
+    const handleGenerarContrato = async () => {
+        setGenerandoContrato(true);
+        try {
+            const res = await contratoService.generar(id);
+            setContrato(res.data);
+        } catch { alert("Error al generar el contrato."); }
+        finally { setGenerandoContrato(false); }
+    };
+
+    // Handler descargar PDF:
+    const handleDescargarPdf = async () => {
+        try {
+            const res = await contratoService.descargarPdf(id);
+            const url = URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `contrato_reserva_${id}.pdf`;
+            link.click();
+            URL.revokeObjectURL(url);
+        } catch { alert("Error al descargar el contrato."); }
+    };
+
 
     // ── NUEVO: confirmar reserva como completada ─────────────────────────────
     const handleConfirmarCompletada = async () => {
@@ -461,6 +499,65 @@ export default function DetalleReserva() {
                     </button>
                 )}
             </Seccion>
+
+            {/* Contrato */}
+            {tienePermiso(usuario, "contratos", "ver") && (
+                <Seccion titulo="Contrato">
+                    {contrato ? (
+                        <div className="space-y-3">
+                            <FilaDato label="Generado el"
+                                valor={new Date(contrato.fecha_generacion).toLocaleDateString("es-CO")} />
+                            <FilaDato label="Descargado"
+                                valor={contrato.fue_descargado ? `Sí · ${new Date(contrato.fecha_descarga).toLocaleDateString("es-CO")}` : "No"} />
+
+                            {/* URL pública para compartir */}
+                            <div>
+                                <p className="text-sm text-gray-500 mb-1">Enlace para el cliente</p>
+                                <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2">
+                                    <p className="text-xs text-gray-600 flex-1 truncate">
+                                        {/*{window.location.origin}/contratos/ver/{contrato.token_publico}*/}
+                                        {import.meta.env.VITE_API_URL}/contratos/ver/{contrato.token_publico}/
+                                    </p>
+                                    <button
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(
+                                                `${import.meta.env.VITE_API_URL}/contratos/ver/${contrato.token_publico}/`
+                                            );
+                                            alert("Enlace copiado al portapapeles");
+                                        }}
+                                        className="text-xs text-[#D4890A] font-medium hover:underline whitespace-nowrap"
+                                    >
+                                        Copiar enlace
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-2 mt-2">
+                                <button onClick={handleDescargarPdf}
+                                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#F5A623] text-[#1A1A1A] font-semibold hover:bg-[#D4890A] hover:text-white transition-colors text-sm">
+                                    Descargar PDF
+                                </button>
+                                {tienePermiso(usuario, "contratos", "crear") && (
+                                    <button onClick={handleGenerarContrato} disabled={generandoContrato}
+                                        className="px-4 py-2 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors text-sm disabled:opacity-50">
+                                        {generandoContrato ? "Regenerando..." : "Regenerar contrato"}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    ) : (
+                        <div>
+                            <p className="text-gray-400 text-sm mb-3">No hay contrato generado para esta reserva.</p>
+                            {tienePermiso(usuario, "contratos", "crear") && (
+                                <button onClick={handleGenerarContrato} disabled={generandoContrato}
+                                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#F5A623] text-[#1A1A1A] font-semibold hover:bg-[#D4890A] hover:text-white transition-colors text-sm">
+                                    {generandoContrato ? "Generando..." : "Generar contrato"}
+                                </button>
+                            )}
+                        </div>
+                    )}
+                </Seccion>
+            )}
 
             {/* NUEVO: Resumen de daños con edición y botón cobrado */}
             {reserva.costo_danio && (
