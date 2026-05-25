@@ -24,4 +24,7 @@ urlpatterns = [
 
     #Contratos
     path('api/contratos/', include('contratos.urls')),
+
+    #Reportes
+    path('api/reportes/', include('reportes.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

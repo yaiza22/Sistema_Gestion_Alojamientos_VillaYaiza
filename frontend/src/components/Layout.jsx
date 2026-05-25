@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import {LayoutDashboard, Calendar, BookOpen, Users, Package, FileText, Building2, UserCog, LogOut, Menu, X, ChevronRight} from "lucide-react";
+//import {LayoutDashboard, Calendar, BookOpen, Users, Package, FileText, Building2, UserCog, LogOut, Menu, X, ChevronRight} from "lucide-react";
+import {LayoutDashboard, BookOpen, Users, Package, FileText, Building2, UserCog, LogOut, Menu, X, ChevronRight} from "lucide-react";
 import PropTypes from "prop-types";
 import { useAuth } from "../hooks/useAuth";
 import { tienePermiso, puedeGestionarUsuarios } from "../utils/permisos";
@@ -43,12 +44,12 @@ const MENU_ITEMS = [
         icono: FileText,
         permiso: { modulo: "reportes", accion: "ver" },
     },
-    {
+    /*{
         ruta: "/calendario",
         etiqueta: "Calendario",
         icono: Calendar,
         siempre: true,
-    },
+    },*/
     {
         ruta: "/usuarios",
         etiqueta: "Usuarios",

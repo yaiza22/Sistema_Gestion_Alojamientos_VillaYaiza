@@ -22,6 +22,8 @@ import FormularioReservas from "../pages/reservas/FormularioReservas";
 import DetalleReserva from "../pages/reservas/DetalleReserva";
 import ChecklistReserva from "../pages/reservas/ChecklistReserva";
 
+import Reportes from "../pages/reportes/Reportes";
+
 function RutasApp() {
   return (
     <BrowserRouter>
@@ -52,6 +54,8 @@ function RutasApp() {
         <Route path="/reservas/:id/editar" element={<RutaProtegida><Layout><FormularioReservas /></Layout></RutaProtegida>} />
         <Route path="/reservas/:id/checklist" element={<RutaProtegida><Layout><ChecklistReserva /></Layout></RutaProtegida>} />
         <Route path="/reservas/:id/checkout" element={<RutaProtegida><Layout><ChecklistReserva /></Layout></RutaProtegida>} />
+        
+        <Route path="/reportes" element={<RutaProtegida><Layout><Reportes /></Layout></RutaProtegida>} />
       </Routes>
     </BrowserRouter>
   );
