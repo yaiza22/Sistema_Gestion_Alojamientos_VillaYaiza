@@ -1,106 +1,155 @@
-#  Sistema de Gestión de Alojamientos — Villa Yaiza
+# Sistema de Gestión de Alojamientos — Villa Yaiza
 
-> Sistema web interno para la administración centralizada de reservas, contratos, pagos e inventario de **Alojamientos Villa Yaiza**, un negocio familiar de alquiler de fincas con fines turísticos.
-
-
+Sistema web para la administración de reservas, clientes, propiedades, inventario y usuarios de Alojamientos Villa Yaiza, un negocio familiar de alquiler de fincas con fines turísticos.
 
 ---
 
-##  Contexto del proyecto
+## Contexto del proyecto
 
-**Alojamientos Villa Yaiza** es un negocio familiar dedicado al alquiler de propiedades con fines turísticos (eventos, vacaciones y fiestas), cuya propiedad principal es la finca *Villa Yaiza*. Actualmente, toda la administración se realiza de forma manual: las reservas se registran por WhatsApp o agenda, los contratos se elaboran con plantillas básicas y el inventario se lleva de manera informal.
+Alojamientos Villa Yaiza es un negocio dedicado al alquiler de propiedades para eventos, vacaciones y fiestas. Actualmente toda la administración se hace de forma manual: las reservas se registran por WhatsApp o agenda, los contratos se hacen con plantillas básicas y el inventario se lleva de manera informal.
 
-Este sistema centraliza la operación en una plataforma web accesible desde cualquier dispositivo, con soporte **offline** dado que la finca presenta problemas de señal.
+Este sistema busca centralizar esa operación en una plataforma web accesible desde cualquier dispositivo.
 
-**Stakeholder principal:** Ana Lucía Dueñez Vanegas — administradora del negocio y responsable de validar los avances del producto.
+**Stakeholder principal:** Ana Lucía Dueñez Vanegas — administradora del negocio.
 
 ### Problemas que resuelve
 
-| Problema actual | Solución implementada |
+| Problema actual | Solución |
 |---|---|
-| Reservas dispersas en WhatsApp y agenda | Calendario digital con gestión centralizada |
+| Reservas dispersas en WhatsApp y agenda | Gestión centralizada de reservas |
 | Contratos elaborados manualmente | Generación automática de contratos en PDF |
-| Sin reportes de ingresos | Reportes financieros con gráficas y exportación PDF |
-| Inventario informal o inexistente | Módulo CRUD con control de daños y checklists |
-| Sin acceso desde la finca (sin señal) | PWA con funcionamiento offline y sincronización automática |
+| Sin reportes de ingresos | Reportes financieros con gráficas |
+| Inventario informal | Módulo CRUD con control de daños y checklists |
+| Sin acceso desde la finca por falta de señal | PWA con funcionamiento offline |
 
 ---
 
-##  Módulos del sistema
+## Módulos del sistema
+
+### Clientes
+Registro, consulta, actualización y eliminación de clientes con campos de nombre, teléfono, email, tipo y número de documento.
 
 ### Reservas
-Gestión completa del ciclo de una reserva: registro de clientes, fechas, propiedades, estados (check-in / check-out) y cálculo automático de precios según temporada. Incluye calendario digital interactivo.
+Gestión del ciclo completo de una reserva: fechas, propiedad, cliente, estado (pendiente, en curso, completada, cancelada) y cálculo de precios según temporada. Incluye checklist de inventario y vista de detalle.
 
-### Contratos
-Generación automática de contratos en PDF a partir de los datos de cada reserva usando **WeasyPrint**. Elimina la elaboración manual y reduce demoras.
-
-### Pagos y Reportes
-Registro y control de ingresos asociados a las reservas. Generación de reportes con gráficas (Recharts) y exportación a PDF.
+### Propiedades
+Administración de los alojamientos disponibles: nombre, tipo (finca, apartamento, cabaña), capacidad, ubicación y precios por temporada.
 
 ### Inventario
-Control de ítems de la finca y apartamentos clasificados por categoría: registro, estado, cantidad, daños y costos asociados. Incluye checklists dinámicos por propiedad.
+Control de ítems por propiedad: registro, estado, cantidad, daños y costos asociados.
 
-### Cuentas
-Autenticación segura con JWT + Refresh Token. Soporta tres roles: `admin`, `asistente` y `empleado`, cada uno con distintos niveles de acceso.
+### Usuarios
+Autenticación con JWT. Maneja tres roles: `admin`, `asistente` y `empleado`, cada uno con distintos niveles de acceso. Incluye gestión de usuarios y cambio de contraseña.
+
+### Contratos
+Generación de contratos en PDF a partir de los datos de cada reserva usando WeasyPrint.
+
+### Reportes
+Reportes financieros con gráficas (Recharts) y exportación a PDF.
 
 ---
 
-##  Estructura del repositorio
+## Estructura del repositorio
 
 ```
 SISTEMA_GESTION_ALOJAMIENTOS_VILLAYAIZA/
 │
 ├── backend/                        # API REST con Django
-│   ├── config/                     # Configuración global (settings, urls, wsgi)
+│   ├── config/                     # Configuración global (settings, urls, wsgi, asgi)
 │   ├── contratos/                  # Generación de contratos PDF
 │   ├── cuentas/                    # Usuarios, roles y autenticación JWT
+│   │   ├── serializers.py
+│   │   ├── urls.py
+│   │   └── views.py
 │   ├── inventario/                 # Control de ítems por propiedad
+│   │   ├── serializers.py
+│   │   ├── urls.py
+│   │   └── views.py
 │   ├── propiedades/                # Registro de alojamientos
-│   ├── reportes/                   # Reportes financieros y de operación
+│   │   ├── serializers.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── reportes/                   # Reportes financieros
 │   ├── reservas/                   # Reservas, clientes y pagos
+│   │   ├── serializers.py
+│   │   ├── urls.py
+│   │   └── views.py
 │   ├── .env                        # Variables de entorno (no se versiona)
 │   ├── manage.py
 │   └── requirements.txt
 │
 ├── frontend/                       # SPA con React + Vite
-│   ├── public/                     # Archivos estáticos
+│   ├── public/
 │   └── src/
-│       ├── paginas/                # Vistas principales (Login, Panel)
-│       ├── proteccion/             # Protección de rutas privadas
-│       ├── rutas/                  # Configuración de rutas
-│       ├── services/               # Cliente Axios + interceptores JWT
+│       ├── components/
+│       │   ├── Layout.jsx
+│       │   ├── MatrizPermisos.jsx
+│       │   └── RutaProtegida.jsx
+│       ├── context/
+│       │   ├── AuthContext.js
+│       │   └── AuthProvider.jsx
+│       ├── hooks/
+│       │   └── useAuth.js
+│       ├── pages/
+│       │   ├── clientes/
+│       │   │   ├── FormularioClientes.jsx
+│       │   │   └── ListaClientes.jsx
+│       │   ├── inventario/
+│       │   │   ├── FormularioInventario.jsx
+│       │   │   └── ListaInventario.jsx
+│       │   ├── propiedades/
+│       │   │   ├── FormularioPropiedades.jsx
+│       │   │   └── ListaPropiedades.jsx
+│       │   ├── reservas/
+│       │   │   ├── ChecklistReserva.jsx
+│       │   │   ├── DetalleReserva.jsx
+│       │   │   ├── FormularioReservas.jsx
+│       │   │   └── ListaReservas.jsx
+│       │   ├── usuarios/
+│       │   │   ├── CambiarPassword.jsx
+│       │   │   ├── FormularioUsuarios.jsx
+│       │   │   └── ListaUsuarios.jsx
+│       │   ├── inicioSesion.jsx
+│       │   └── panel.jsx
+│       ├── router/
+│       │   └── RutasApp.jsx
+│       ├── services/
+│       │   ├── api.js
+│       │   ├── clienteService.js
+│       │   ├── inventarioService.js
+│       │   ├── propiedadService.js
+│       │   └── reservaService.js
+│       ├── utils/
+│       │   ├── calculadoraPrecio.js
+│       │   └── permisos.js
 │       ├── App.jsx
 │       └── main.jsx
 │
 └── .gitignore
 ```
 
- Documentación detallada de cada parte:
-- [README del backend](./backend/README.md)
-- README del frontend *(próximamente)*
-
 ---
 
-##  Stack tecnológico
+## Stack tecnológico
 
 | Capa | Tecnología | Versión |
 |------|-----------|---------|
-| Backend | Django + Django REST Framework | 5.2 / 3.17 |
-| Frontend | React + Vite | 18.3.1 / 5.4.21 |
+| Backend | Django + Django REST Framework | 6.0.4 / 3.x |
+| Frontend | React + Vite | 18.x / 5.4.21 |
 | Gráficas | Recharts | 3.8.1 |
 | HTTP client | Axios | 1.15.1 |
 | Estilos | Tailwind CSS | 3.4.19 |
-| PWA / Offline | Workbox | 5.4.21 |
-| Autenticación | JWT (djangorestframework-simplejwt) | 5.5.1 |
+| Animaciones | Framer Motion | latest |
+| Autenticación | JWT (djangorestframework-simplejwt) | 5.x |
 | Generación PDF | WeasyPrint | 68.1 |
-| Base de datos (dev) | SQLite | — |
-| Base de datos (prod) | PostgreSQL en Neon | — |
+| Base de datos (desarrollo) | SQLite | — |
+| Base de datos (producción) | PostgreSQL en Neon | — |
 | Hosting frontend | Vercel | — |
 | Hosting backend | Render | — |
 
 ---
 
-##  Arquitectura de comunicación
+## Cómo funciona la comunicación frontend-backend
 
 ```
 React (frontend)
@@ -111,7 +160,7 @@ React (frontend)
      ▼
 services/api.js
      │  baseURL: '/api'
-     │  + token JWT automático en cada petición
+     │  + token JWT en cada petición
      │
      ▼
 vite.config.js (proxy en desarrollo)
@@ -129,22 +178,22 @@ React recibe el JSON y lo renderiza
 
 ---
 
-##  Autenticación
+## Autenticación
 
-El sistema usa **JWT (JSON Web Tokens)** con el siguiente flujo:
+El sistema usa JWT con el siguiente flujo:
 
-1. El usuario ingresa sus credenciales en `/` (página de login)
+1. El usuario ingresa sus credenciales en `/`
 2. El frontend envía `POST /api/token/` al backend
 3. El backend devuelve `accessToken` y `refreshToken`
-4. Ambos tokens se almacenan en `localStorage`
+4. Los tokens se guardan en `localStorage`
 5. Cada petición incluye el `accessToken` en el header `Authorization: Bearer <token>`
-6. Si el token no existe o expira, el usuario es redirigido automáticamente al login
+6. Si el token no existe o expira, el usuario es redirigido al login
 
-Los roles disponibles son `admin`, `asistente` y `empleado`, definidos en el modelo de usuario del backend.
+Los roles disponibles son `admin`, `asistente` y `empleado`.
 
 ---
 
-##  Inicio rápido
+## Inicio rápido
 
 ### Backend
 
@@ -152,7 +201,6 @@ Los roles disponibles son `admin`, `asistente` y `empleado`, definidos en el mod
 cd backend
 python -m venv venv && venv\Scripts\activate   # Windows
 pip install -r requirements.txt
-cp .env.example .env                            # Configurar variables
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver
@@ -166,39 +214,21 @@ npm install
 npm run dev
 ```
 
-El proxy de Vite redirige automáticamente las peticiones `/api/*` al backend en `http://localhost:8000` durante el desarrollo.
-
-Para instrucciones detalladas consulta el [README del backend](./backend/README.md).
+El proxy de Vite redirige las peticiones `/api/*` al backend en `http://localhost:8000` durante el desarrollo.
 
 ---
 
-##  Estado general del proyecto
+## Variables de entorno
 
-| Módulo / Componente | Estado |
-|---|---|
-| Modelos de datos (todos los módulos) | ✅ Completo |
-| Panel Django Admin | ✅ Funcional |
-| Endpoint de prueba y perfil de usuario | ✅ Activo |
-| Conexión frontend ↔ backend | ✅ Establecida |
-| Login con JWT y protección de rutas | ✅ Implementado |
-| Dashboard principal (Panel) | ✅ En curso |
-| API REST — serializers y endpoints | 🔄 En desarrollo |
-| Módulo de reservas (frontend + backend) | 🔄 En desarrollo |
-| Generación de contratos PDF | ⏳ Pendiente |
-| Reportes con gráficas | ⏳ Pendiente |
-| PWA / soporte offline con Workbox | ⏳ Pendiente |
-| Migración a PostgreSQL (Neon) | ⏳ Pendiente |
-| Despliegue en Render + Vercel | ⏳ Pendiente |
+Crea un archivo `.env` en la carpeta `backend/` con el siguiente contenido:
+
+```
+SECRET_KEY=django-insecure-clave-local-aqui
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+```
 
 ---
-
-
 
 **Materia:** Ingeniería de Software
 **Stakeholder:** Ana Lucía Dueñez Vanegas — Administradora, Alojamientos Villa Yaiza
-
----
-
-##  Licencia
-
-Proyecto académico desarrollado para la materia de Ingeniería de Software. Todos los derechos sobre el nombre y marca *Villa Yaiza* pertenecen a sus propietarios.
