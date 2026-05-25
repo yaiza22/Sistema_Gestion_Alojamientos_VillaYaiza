@@ -237,7 +237,7 @@ export default function Panel() {
       {/* Encabezado */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-[#1A1A1A]">
-          Bienvenido, {usuario?.first_name || usuario?.username} 👋
+          Bienvenido, {usuario?.first_name || usuario?.username}
         </h1>
         <p className="text-gray-500 text-sm mt-1">
           {new Date().toLocaleDateString("es-CO", {

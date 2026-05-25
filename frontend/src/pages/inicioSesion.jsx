@@ -74,8 +74,13 @@ function InicioSesion() {
   };
 
   // Inicio de sesión con Google - Falta Backend
+  /*
   const manejarGoogle = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google/`;
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/login/google-oauth2/?next=/api/auth/google/callback-jwt/`;
+  };
+  */
+  const manejarGoogle = () => {
+    window.location.href = 'http://localhost:8000/api/auth/login/google-oauth2/';
   };
 
   return (

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Georgia", serif;
+            font-size: 11pt;
+            color: #1a1a1a;
+            padding: 2cm 2.5cm;
+            line-height: 1.6;
+        }
+
+        /* Encabezado */
+        .encabezado {
+            text-align: center;
+            border-bottom: 2px solid #F5A623;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .encabezado h1 {
+            font-size: 18pt;
+            color: #D4890A;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .encabezado p {
+            font-size: 10pt;
+            color: #555;
+            margin-top: 4px;
+        }
+
+        /* Secciones */
+        .seccion {
+            margin-bottom: 20px;
+        }
+
+        .seccion-titulo {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #D4890A;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #F5A623;
+            padding-bottom: 4px;
+            margin-bottom: 10px;
+        }
+
+        /* Tabla de datos */
+        .tabla-datos {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .tabla-datos td {
+            padding: 5px 8px;
+            font-size: 10.5pt;
+            vertical-align: top;
+        }
+
+        .tabla-datos td:first-child {
+            font-weight: bold;
+            color: #444;
+            width: 38%;
+            white-space: nowrap;
+        }
+
+        /* Tabla inventario */
+        .tabla-inventario {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            font-size: 10pt;
+        }
+
+        .tabla-inventario th {
+            background-color: #F5A623;
+            color: white;
+            padding: 6px 10px;
+            text-align: left;
+            font-size: 10pt;
+        }
+
+        .tabla-inventario td {
+            padding: 5px 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tabla-inventario tr:nth-child(even) td {
+            background-color: #FFFBEB;
+        }
+
+        /* Normas */
+        .normas ol {
+            padding-left: 20px;
+        }
+
+        .normas ol li {
+            margin-bottom: 6px;
+            font-size: 10.5pt;
+        }
+
+        /* Firmas */
+        .firmas {
+            margin-top: 48px;
+            display: table;
+            width: 100%;
+        }
+
+        .firma-bloque {
+            display: table-cell;
+            width: 45%;
+            text-align: center;
+            padding: 0 16px;
+        }
+
+        .firma-linea {
+            border-top: 1px solid #1a1a1a;
+            margin: 0 auto 8px auto;
+            width: 80%;
+        }
+
+        .firma-nombre {
+            font-weight: bold;
+            font-size: 10pt;
+        }
+
+        .firma-cargo {
+            font-size: 9pt;
+            color: #666;
+        }
+
+        /* Pie de página */
+        .pie {
+            margin-top: 32px;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            font-size: 9pt;
+            color: #888;
+        }
+
+        /* Salto de página antes del inventario */
+        .salto {
+            page-break-before: always;
+        }
+
+        .advertencia {
+            background: #FFFBEB;
+            border: 1px solid #F5A623;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 10pt;
+            color: #D4890A;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── ENCABEZADO ─────────────────────────────────── -->
+    <div class="encabezado">
+        <h1>Finca Villa Yaiza</h1>
+        <p>Contrato de Arrendamiento por Días · Reserva #{{ reserva.id }}</p>
+        <p>Generado el {{ contrato.fecha_generacion|date:"d \d\e F \d\e Y" }}</p>
+    </div>
+
+    <!-- ── COMPARECIENTES ─────────────────────────────── -->
+    <div class="seccion">
+        <div class="seccion-titulo">Comparecientes</div>
+        <p style="font-size:10.5pt; margin-bottom:10px;">
+            Entre <strong>Finca Villa Yaiza</strong>, en adelante <em>EL ARRENDADOR</em>,
+            y la persona identificada a continuación, en adelante <em>EL ARRENDATARIO</em>,
+            se celebra el presente contrato de arrendamiento temporal sujeto a las
+            condiciones que se detallan:
+        </p>
+        <table class="tabla-datos">
+            <tr>
+                <td>Nombre completo:</td>
+                <td>{{ cliente.nombre }}</td>
+            </tr>
+            <tr>
+                <td>Tipo de documento:</td>
+                <td>{{ cliente.get_tipo_documento_display|default:"—" }}</td>
+            </tr>
+            <tr>
+                <td>Número de documento:</td>
+                <td>{{ cliente.numero_documento|default:"—" }}</td>
+            </tr>
+            <tr>
+                <td>Teléfono:</td>
+                <td>{{ cliente.telefono }}</td>
+            </tr>
+            <tr>
+                <td>Email:</td>
+                <td>{{ cliente.email|default:"—" }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ── INMUEBLE ───────────────────────────────────── -->
+    <div class="seccion">
+        <div class="seccion-titulo">Inmueble arrendado</div>
+        <table class="tabla-datos">
+            <tr>
+                <td>Nombre:</td>
+                <td>{{ propiedad.nombre }}</td>
+            </tr>
+            <tr>
+                <td>Tipo:</td>
+                <td>{{ propiedad.get_tipo_display }}</td>
+            </tr>
+            <tr>
+                <td>Ubicación:</td>
+                <td>{{ propiedad.ubicacion|default:"—" }}</td>
+            </tr>
+            <tr>
+                <td>Capacidad máxima:</td>
+                <td>{{ propiedad.capacidad }} personas</td>
+            </tr>
+            {% if propiedad.descripcion %}
+            <tr>
+                <td>Descripción:</td>
+                <td>{{ propiedad.descripcion }}</td>
+            </tr>
+            {% endif %}
+        </table>
+    </div>
+
+    <!-- ── CONDICIONES DE LA RESERVA ──────────────────── -->
+    <div class="seccion">
+        <div class="seccion-titulo">Condiciones de la reserva</div>
+        <table class="tabla-datos">
+            <tr>
+                <td>Fecha de ingreso:</td>
+                <td>{{ reserva.fecha_inicio|date:"d \d\e F \d\e Y" }}</td>
+            </tr>
+            <tr>
+                <td>Fecha de salida:</td>
+                <td>{{ reserva.fecha_fin|date:"d \d\e F \d\e Y" }}</td>
+            </tr>
+            <tr>
+                <td>Duración:</td>
+                <td>{{ dias }} día{{ dias|pluralize }}</td>
+            </tr>
+            <tr>
+                <td>Hora estimada de ingreso:</td>
+                <td>{{ reserva.hora_entrada_estimada|default:"A convenir" }}</td>
+            </tr>
+            <tr>
+                <td>Hora estimada de salida:</td>
+                <td>{{ reserva.hora_salida_estimada|default:"A convenir" }}</td>
+            </tr>
+            <tr>
+                <td>Número de personas:</td>
+                <td>{{ reserva.cant_asistentes }} persona{{ reserva.cant_asistentes|pluralize }}</td>
+            </tr>
+            <tr>
+                <td>Temporada:</td>
+                <td>{{ reserva.get_temporada_display|default:"—" }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ── VALOR DEL CONTRATO ─────────────────────────── -->
+    <div class="seccion">
+        <div class="seccion-titulo">Valor del contrato</div>
+        <table class="tabla-datos">
+            <tr>
+                <td>Valor total pactado:</td>
+                <td><strong>${{ reserva.precio_total|floatformat:0 }}</strong> (pesos colombianos)</td>
+            </tr>
+        </table>
+        {% if contrato.notas_adicionales %}
+        <p style="margin-top:8px; font-size:10.5pt;">
+            <strong>Condiciones especiales:</strong> {{ contrato.notas_adicionales }}
+        </p>
+        {% endif %}
+    </div>
+
+    <!-- ── NORMAS DE CONVIVENCIA ──────────────────────── -->
+    <div class="seccion normas">
+        <div class="seccion-titulo">Normas y condiciones de uso</div>
+        <ol>
+            <li>El arrendatario se compromete a hacer uso responsable y cuidadoso de las instalaciones y los bienes
+                muebles del inmueble.</li>
+            <li>Está prohibido el ingreso de personas adicionales a las registradas en el contrato sin autorización
+                previa del arrendador.</li>
+            <li>No se permite el ingreso de mascotas al inmueble salvo autorización del arrendador.</li>
+            <li>El horario de ingreso y salida debe respetarse según lo pactado. Retrasos en la salida podrán generar
+                cobros adicionales.</li>
+            <li>Queda prohibida la realización de eventos, fiestas o reuniones que superen el aforo máximo autorizado.
+            </li>
+            <li>El uso de equipos de sonido deberá respetar las normas de convivencia y los horarios establecidos por la
+                normativa local.</li>
+            <li>Cualquier daño, pérdida o deterioro de bienes del inmueble será responsabilidad del arrendatario y
+                deberá ser reembolsado según el valor comercial del bien afectado.</li>
+            <li>El arrendatario recibirá el inventario descrito en el presente contrato y se compromete a devolverlo en
+                las mismas condiciones.</li>
+            <li>El arrendador no se hace responsable por objetos de valor dejados en el inmueble.</li>
+            <li>El incumplimiento de cualquiera de las presentes normas podrá dar lugar a la terminación inmediata del
+                contrato sin derecho a reembolso.</li>
+        </ol>
+    </div>
+
+    <!-- ── FIRMAS ─────────────────────────────────────── -->
+    <div class="firmas">
+        <div class="firma-bloque">
+            <div class="firma-linea"></div>
+            <div class="firma-nombre">Finca Villa Yaiza</div>
+            <div class="firma-cargo">Arrendador</div>
+        </div>
+        <div class="firma-bloque">
+            <div class="firma-linea"></div>
+            <div class="firma-nombre">{{ cliente.nombre }}</div>
+            <div class="firma-cargo">Arrendatario · {{ cliente.numero_documento|default:"" }}</div>
+        </div>
+    </div>
+
+    <!-- ── INVENTARIO (página nueva) ──────────────────── -->
+    {% if items_inventario %}
+    <div class="salto">
+        <div class="encabezado" style="margin-bottom:16px;">
+            <h1>Finca Villa Yaiza</h1>
+            <p>Inventario de entrega · Reserva #{{ reserva.id }} · {{ cliente.nombre }}</p>
+        </div>
+
+        <div class="advertencia">
+            Este inventario debe ser verificado por el arrendatario al momento del ingreso.
+            Cualquier discrepancia debe reportarse antes de firmar el acta de entrega.
+        </div>
+
+        <table class="tabla-inventario">
+            <thead>
+                <tr>
+                    <th>Ítem</th>
+                    <th>Categoría</th>
+                    <th>Cantidad</th>
+                    <th>Estado</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items_inventario %}
+                <tr>
+                    <td>{{ item.nombre }}</td>
+                    <td>{{ item.get_categoria_display }}</td>
+                    <td>{{ item.cantidad_disponible }}</td>
+                    <td>{{ item.get_estado_display }}</td>
+                    <td style="min-width:100px;"></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="firmas" style="margin-top:32px;">
+            <div class="firma-bloque">
+                <div class="firma-linea"></div>
+                <div class="firma-nombre">Finca Villa Yaiza</div>
+                <div class="firma-cargo">Entrega</div>
+            </div>
+            <div class="firma-bloque" >
+                <div class="firma-linea"></div>
+                <div class="firma-nombre">{{ cliente.nombre }}</div>
+                <div class="firma-cargo">Recibe conforme</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="pie">
+        Finca Villa Yaiza · Contrato generado electrónicamente ·
+        Token: {{ contrato.token_publico }}
+    </div>
+
+</body>
+
+</html>

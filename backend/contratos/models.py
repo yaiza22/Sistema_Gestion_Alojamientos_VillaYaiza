@@ -8,6 +8,7 @@ class Contrato(models.Model):
     fecha_generacion = models.DateTimeField(auto_now_add=True)
     fue_descargado = models.BooleanField(default=False)
     fecha_descarga = models.DateTimeField(blank=True, null=True)
+    notas_adicionales = models.TextField(blank=True, null=True, help_text="Notas o condiciones especiales para este contrato")
 
     class Meta:
         verbose_name = "Contrato"
@@ -15,3 +16,7 @@ class Contrato(models.Model):
 
     def __str__(self):
         return f"Contrato - Reserva {self.reserva.id}"
+    
+    @property
+    def url_publica(self):
+        return f"/contratos/ver/{self.token_publico}/"
