@@ -3,7 +3,7 @@ from .models import Propiedad
 
 @admin.register(Propiedad)
 class PropiedadAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'tipo', 'capacidad', 'precio_base_por_dia', 'precio_temporada_baja', 'precio_temporada_alta', 'ubicacion', 'esta_activa', 'fecha_creacion']
+    list_display = ['nombre', 'tipo', 'capacidad', 'precio_base_por_dia', 'precio_temporada_baja', 'precio_temporada_alta', 'ubicacion', 'esta_activa', 'fecha_creacion', 'imagen']
     list_filter = ['tipo', 'esta_activa']
     search_fields = ['nombre', 'ubicacion']
     list_editable = ['esta_activa']
