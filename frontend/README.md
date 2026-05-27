@@ -24,7 +24,6 @@ Interfaz web desarrollada con React y Vite. Consume la API REST del backend en D
 ```bash
 cd frontend
 npm install
-npm install recharts
 npm run dev
 ```
 

@@ -120,3 +120,77 @@ Los roles disponibles son `admin`, `asistente` y `empleado`.
 
 ---
 
+## Despliegue del proyecto
+ 
+### 1. Clonar el repositorio
+ 
+```bash
+git clone https://github.com/yaiza22/Sistema_Gestion_Alojamientos_VillaYaiza.git
+cd Sistema_Gestion_Alojamientos_VillaYaiza
+```
+ 
+### 2. Ir a rama develop
+ 
+```bash
+git checkout develop
+```
+ 
+### 3. Crear entorno virtual
+ 
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+ 
+### 4. Instalar dependencias Python
+ 
+```bash
+cd backend
+pip install -r requirements.txt
+```
+ 
+### 5. Crear backend/.env
+ 
+Crea el archivo `.env` en la carpeta `backend/`. Ver variables requeridas en [`backend/README.md`](./backend/README.md).
+ 
+### 6. Correr migraciones
+ 
+```bash
+python manage.py migrate
+```
+ 
+### 7. Crear superusuario
+ 
+```bash
+python manage.py createsuperuser
+```
+ 
+### 8. Instalar dependencias Node
+ 
+```bash
+cd ../frontend
+npm install
+```
+ 
+### 9. Crear frontend/.env
+ 
+Crea el archivo `.env` en la carpeta `frontend/`.
+ 
+### 10. Poner en funcionamiento el proyecto
+ 
+**Terminal 1 — backend** (desde la raíz):
+ 
+```bash
+venv\Scripts\activate
+cd backend
+python manage.py runserver
+```
+ 
+**Terminal 2 — frontend:**
+ 
+```bash
+cd frontend
+npm run dev
+```
+ 
+

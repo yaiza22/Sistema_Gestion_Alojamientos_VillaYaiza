@@ -16,27 +16,6 @@ API REST desarrollada con Django y Django REST Framework. Gestiona todos los rec
 
 ---
 
-## Instalación y ejecución
- 
-> ** Requisito previo en Windows — WeasyPrint y GTK3 **
->
-> WeasyPrint depende del runtime GTK3. Sin él, la instalación fallará y las migraciones del módulo de contratos darán error. Antes de ejecutar `pip install -r requirements.txt`, instala el runtime desde:
->
-> https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases
->
-> Descarga e instala el archivo: `gtk3-runtime-3.x.x-x-x-ts-win64.exe` (último release disponible). Luego reinicia el terminal.
-
-```bash
-cd backend
-python -m venv venv && venv\Scripts\activate   # Windows
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver
-```
-
----
-
 ## Variables de entorno
 
 Crea un archivo `.env` en la carpeta `backend/` con el siguiente contenido:
